@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Juego rápido: ¿Cuál es Marruecos?</title>
+<style>
+  :root{
+    --bg:#ffdfe8; /* fondo que combina con cartulina rosada */
+    --card:#fff7f9;
+    --accent:#d97706;
+    --dark:#4b2b0b;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg);
+    color:var(--dark);
+    padding:20px;
+  }
+  .game {
+    width:920px;
+    max-width:100%;
+    background:var(--card);
+    border-radius:12px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.12);
+    padding:18px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  header h1{
+    margin:0;
+    font-size:28px;
+    color:var(--accent);
+    letter-spacing:1px;
+  }
+  header p { margin:0; color:#6b4a2f; font-size:14px; }
+
+  .status{
+    margin-top:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .score { font-weight:700; }
+
+  .question-box{
+    margin-top:18px;
+    padding:14px;
+    border-radius:8px;
+    border:2px dashed rgba(75,43,11,0.08);
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+  }
+  .desc {
+    font-size:18px;
+    margin:0;
+    color:var(--dark);
+  }
+
+  .grid{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+
+  .thumb{
+    background-image: url('/mnt/data/A_hand-drawn_illustration_on_a_pink_background_pro.png');
+    background-size: 200% 200%;
+    border-radius:8px;
+    height:170px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    cursor:pointer;
+    border:3px solid transparent;
+    transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+  }
+  .thumb:hover{ transform: translateY(-4px); box-shadow:0 8px 18px rgba(0,0,0,0.12); }
+  .thumb.correct { border-color: #16a34a33; box-shadow: 0 10px 20px rgba(22,163,74,0.12); }
+  .thumb.wrong { border-color: #dc262633; box-shadow: 0 10px 20px rgba(220,38,38,0.08); }
+
+  /* Cada thumb usa background-position para recortar la imagen original (4 cuadrantes) */
+  .t-1 { background-position: 10% 12%; }  /* Marrakech - top-left */
+  .t-2 { background-position: 60% 12%; }  /* Chefchaouen - top-right */
+  .t-3 { background-position: 10% 62%; }  /* Sahara - bottom-left */
+  .t-4 { background-position: 60% 62%; }  /* Fez - bottom-right */
+
+  .label{
+    width:100%;
+    text-align:center;
+    padding:8px 6px;
+    background:rgba(255,255,255,0.85);
+    border-radius:0 0 8px 8px;
+    font-weight:600;
+    color:var(--dark);
+  }
+
+  .controls{
+    margin-top:14px;
+    display:flex;
+    gap:8px;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .btn {
+    background:var(--accent);
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .btn.secondary {
+    background:#f3f4f6; color:var(--dark);
+  }
+
+  .feedback {
+    font-weight:700;
+  }
+
+  footer.small {
+    margin-top:10px;
+    font-size:12px;
+    color:#6b4a2f;
+  }
+
+  @media (max-width:640px){
+    .grid { gap:8px; grid-template-columns:1fr 1fr; }
+    .thumb { height:120px; }
+  }
+</style>
+</head>
+<body>
+  <div class="game" role="application" aria-labelledby="game-title">
+    <header>
+      <div>
+        <h1 id="game-title">Marruecos • Mini juego</h1>
+        <p>Selecciona la imagen que coincide con la breve descripción. 4 opciones por ronda.</p>
+      </div>
+      <div style="margin-left:auto; text-align:right">
+        <div class="score">Puntuación: <span id="score">0</span> / <span id="round">0</span></div>
+      </div>
+    </header>
+
+    <div class="status">
+      <div style="display:flex; gap:10px;">
+        <div style="font-size:13px; color:#6b4a2f">Ronda: <strong id="currentRound">0</strong>/<strong id="totalRounds">4</strong></div>
+      </div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+    </div>
+
+    <div class="question-box" role="region" aria-label="Descripción">
+      <p class="desc" id="description">Descripción aquí</p>
+    </div>
+
+    <section class="grid" aria-label="Opciones">
+      <div class="thumb t-1" data-id="1" tabindex="0" role="button" aria-pressed="false">
+        <div class="label">Opción A</div>
+      </div>
+      <div class="thumb t-2" data-id="2" tabindex="0" role="button" aria-pressed="false">
+        <div class="label">Opción B</div>
+      </div>
+      <div class="thumb t-3" data-id="3" tabindex="0" role="button" aria-pressed="false">
+        <div class="label">Opción C</div>
+      </div>
+      <div class="thumb t-4" data-id="4" tabindex="0" role="button" aria-pressed="false">
+        <div class="label">Opción D</div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <div>
+        <button class="btn" id="nextBtn">Siguiente</button>
+        <button class="btn secondary" id="resetBtn">Reiniciar</button>
+      </div>
+      <div class="small" id="hint">Haz clic en la imagen correcta.</div>
+    </div>
+
+    <footer class="small">
+      Consejo: si la imagen no carga, revisa que el archivo de imagen esté en la ruta correcta.
+    </footer>
+  </div>
+
+<script>
+(function(){
+  // Preguntas en español (breve descripción) y la opción correcta (id 1..4)
+  const questions = [
+    { text: "Ciudad conocida como la 'Ciudad Azul' por sus calles totalmente pintadas de azul.", answer: 2 },
+    { text: "La ciudad roja: mercados vibrantes, palacios y mucha energía cultural (Marrakech).", answer: 1 },
+    { text: "Desierto con dunas doradas y paseos en camello, famoso por atardeceres inolvidables.", answer: 3 },
+    { text: "Ciudad histórica y antigua, con medinas y talleres tradicionales (Fez).", answer: 4 }
+  ];
+
+  // Mezclar preguntas para juego corto
+  const shuffled = questions.slice().sort(()=>Math.random()-0.5);
+
+  const scoreEl = document.getElementById('score');
+  const roundEl = document.getElementById('round');
+  const descEl = document.getElementById('description');
+  const feedbackEl = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const currentRoundEl = document.getElementById('currentRound');
+  const totalRoundsEl = document.getElementById('totalRounds');
+
+  let current = 0;
+  let score = 0;
+  let locked = false;
+
+  totalRoundsEl.textContent = shuffled.length;
+  roundEl.textContent = score;
+
+  const thumbs = Array.from(document.querySelectorAll('.thumb'));
+
+  function startRound(){
+    locked = false;
+    feedbackEl.textContent = '';
+    thumbs.forEach(t => { t.classList.remove('correct','wrong'); t.setAttribute('aria-pressed','false'); t.style.pointerEvents = 'auto'; });
+    if(current >= shuffled.length){
+      // final
+      descEl.textContent = "¡Juego terminado! Tu puntaje final es " + score + " / " + shuffled.length + ". Pulsa reiniciar para jugar otra vez.";
+      feedbackEl.textContent = (score === shuffled.length) ? "¡Increíble! 🥳" : (score >= Math.ceil(shuffled.length/2) ? "Buen trabajo 🙂" : "¡Anímate a intentar otra vez!");
+      nextBtn.disabled = true;
+      return;
+    }
+    const q = shuffled[current];
+    descEl.textContent = q.text;
+    currentRoundEl.textContent = current+1;
+    roundEl.textContent = score;
+  }
+
+  function handleChoice(e){
+    if(locked) return;
+    locked = true;
+    const id = Number(this.getAttribute('data-id'));
+    const correct = shuffled[current].answer;
+    thumbs.forEach(t => t.style.pointerEvents = 'none');
+    if(id === correct){
+      this.classList.add('correct');
+      feedbackEl.textContent = "¡Correcto!";
+      score++;
+    } else {
+      this.classList.add('wrong');
+      feedbackEl.textContent = "Incorrecto. La respuesta correcta está resaltada.";
+      // resaltar la correcta
+      const correctThumb = thumbs.find(t => Number(t.getAttribute('data-id')) === correct);
+      if(correctThumb) correctThumb.classList.add('correct');
+    }
+    scoreEl.textContent = score;
+    roundEl.textContent = score;
+    nextBtn.disabled = false;
+  }
+
+  // Agregar listeners
+  thumbs.forEach(t => {
+    t.addEventListener('click', handleChoice);
+    t.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
+    });
+  });
+
+  nextBtn.addEventListener('click', function(){
+    if(current < shuffled.length){
+      current++;
+      startRound();
+      nextBtn.disabled = true;
+    }
+  });
+
+  resetBtn.addEventListener('click', function(){
+    // reset game
+    current = 0;
+    score = 0;
+    scoreEl.textContent = '0';
+    roundEl.textContent = '0';
+    // remezclar
+    shuffled.sort(()=>Math.random()-0.5);
+    nextBtn.disabled = false;
+    startRound();
+  });
+
+  // inicial
+  nextBtn.disabled = true;
+  startRound();
+
+})();
+</script>
+</body>
+</html>
