@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Morocco Quiz Game</title>
+<title>Quick Game: Guess the Moroccan Place</title>
 <style>
   :root{
     --bg:#ffdfe8;
@@ -30,85 +30,54 @@
     box-shadow:0 6px 20px rgba(0,0,0,0.12);
     padding:18px;
   }
-  header{
-    display:flex;
-    align-items:center;
-    gap:16px;
-  }
   header h1{
     margin:0;
     font-size:28px;
     color:var(--accent);
-    letter-spacing:1px;
   }
-  header p { margin:0; color:#6b4a2f; font-size:14px; }
 
   .status{
     margin-top:12px;
     display:flex;
-    align-items:center;
     justify-content:space-between;
-    gap:10px;
   }
-  .score { font-weight:700; }
 
   .question-box{
     margin-top:18px;
     padding:14px;
     border-radius:8px;
-    border:2px dashed rgba(75,43,11,0.08);
-    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+    border:2px dashed rgba(75,43,11,0.15);
+    background:white;
   }
-  .desc {
-    font-size:18px;
-    margin:0;
-    color:var(--dark);
-  }
+  .desc { font-size:18px; margin:0; }
 
   .grid{
-    margin-top:14px;
+    margin-top:18px;
     display:grid;
     grid-template-columns:repeat(2,1fr);
     gap:12px;
   }
 
-  .thumb{
+  .option{
+    padding:15px;
+    background:white;
     border-radius:8px;
-    height:170px;
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-    cursor:pointer;
-    border:3px solid transparent;
-    overflow:hidden;
-    transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
-  }
-  .thumb img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-  }
-  .thumb:hover{ transform: translateY(-4px); box-shadow:0 8px 18px rgba(0,0,0,0.12); }
-  .thumb.correct { border-color: #16a34a33; box-shadow: 0 10px 20px rgba(22,163,74,0.12); }
-  .thumb.wrong { border-color: #dc262633; box-shadow: 0 10px 20px rgba(220,38,38,0.08); }
-
-  .label{
-    width:100%;
+    border:2px solid transparent;
+    font-weight:700;
     text-align:center;
-    padding:8px 6px;
-    background:rgba(255,255,255,0.85);
-    border-radius:0 0 8px 8px;
-    font-weight:600;
-    color:var(--dark);
+    cursor:pointer;
+    transition:0.15s ease;
   }
+  .option:hover{ transform: translateY(-4px); box-shadow:0 4px 10px rgba(0,0,0,0.12); }
+  .option.correct{ border-color:#16a34a; background:#e8fbe8; }
+  .option.wrong{ border-color:#dc2626; background:#fde8e8; }
 
   .controls{
     margin-top:14px;
     display:flex;
-    gap:8px;
     justify-content:space-between;
-    align-items:center;
   }
+
   .btn {
     background:var(--accent);
     color:white;
@@ -122,165 +91,139 @@
     background:#f3f4f6; color:var(--dark);
   }
 
-  .feedback {
-    font-weight:700;
-  }
-
-  footer.small {
+  footer{
     margin-top:10px;
     font-size:12px;
     color:#6b4a2f;
   }
-
-  @media (max-width:640px){
-    .grid { gap:8px; grid-template-columns:1fr 1fr; }
-    .thumb { height:120px; }
-  }
 </style>
 </head>
-
 <body>
-  <div class="game">
-    <header>
-      <div>
-        <h1>Morocco • Quick Quiz</h1>
-        <p>Select the image that matches the short description.</p>
-      </div>
-      <div style="margin-left:auto; text-align:right">
-        <div class="score">Score: <span id="score">0</span> / <span id="round">0</span></div>
-      </div>
-    </header>
+<div class="game">
+  <header>
+    <h1>Morocco • Quick Quiz</h1>
+    <p>Choose the correct Moroccan location based on the description.</p>
+  </header>
 
-    <div class="status">
-      <div style="font-size:13px; color:#6b4a2f">
-        Round: <strong id="currentRound">0</strong>/<strong id="totalRounds">4</strong>
-      </div>
-      <div class="feedback" id="feedback"></div>
-    </div>
-
-    <div class="question-box">
-      <p class="desc" id="description">Description here</p>
-    </div>
-
-    <section class="grid">
-      <div class="thumb" data-id="1"><img src="https://i.imgur.com/eTpr3fB.jpeg"><div class="label">A</div></div>
-      <div class="thumb" data-id="2"><img src="https://i.imgur.com/0pM2QAX.jpeg"><div class="label">B</div></div>
-      <div class="thumb" data-id="3"><img src="https://i.imgur.com/wt5q8Sl.jpeg"><div class="label">C</div></div>
-      <div class="thumb" data-id="4"><img src="https://i.imgur.com/kpX7nJt.jpeg"><div class="label">D</div></div>
-    </section>
-
-    <div class="controls">
-      <div>
-        <button class="btn" id="nextBtn">Next</button>
-        <button class="btn secondary" id="resetBtn">Restart</button>
-      </div>
-      <div class="small" id="hint">Tap the correct image.</div>
-    </div>
-
-    <footer class="small">
-      If the images don't load, check your internet connection.
-    </footer>
+  <div class="status">
+    <div>Round: <strong id="currentRound">0</strong> / <strong id="totalRounds">4</strong></div>
+    <div>Score: <strong id="score">0</strong></div>
   </div>
+
+  <div class="question-box">
+    <p class="desc" id="description">Description here</p>
+  </div>
+
+  <div class="grid">
+    <div class="option" data-id="1">Option A</div>
+    <div class="option" data-id="2">Option B</div>
+    <div class="option" data-id="3">Option C</div>
+    <div class="option" data-id="4">Option D</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="nextBtn">Next</button>
+    <button class="btn secondary" id="resetBtn">Reset</button>
+  </div>
+
+  <footer>Made for your Morocco presentation.</footer>
+</div>
 
 <script>
 (function(){
   const questions = [
-    { text: "The Blue City of Morocco, famous for its fully painted blue streets.", answer: 2 },
-    { text: "The Red City with vibrant markets and palaces. (Marrakech)", answer: 1 },
-    { text: "Golden desert dunes and camel rides at sunset.", answer: 3 },
-    { text: "One of the oldest historic cities with traditional artisans. (Fez)", answer: 4 }
+    {
+      text: "This place is known as the Blue City because nearly all its streets and houses are painted blue.",
+      options: ["Marrakech", "Chefchaouen", "Sahara Desert", "Fez"],
+      answer: 2
+    },
+    {
+      text: "This city is called the Red City, famous for its markets, palaces and strong cultural energy.",
+      options: ["Marrakech", "Chefchaouen", "Sahara Desert", "Fez"],
+      answer: 1
+    },
+    {
+      text: "Golden dunes, camel rides and unforgettable sunsets can be found here.",
+      options: ["Marrakech", "Chefchaouen", "Sahara Desert", "Fez"],
+      answer: 3
+    },
+    {
+      text: "Ancient medinas, traditional crafts and historic streets describe this city.",
+      options: ["Marrakech", "Chefchaouen", "Sahara Desert", "Fez"],
+      answer: 4
+    }
   ];
 
-  const shuffled = questions.slice().sort(()=>Math.random()-0.5);
-
-  const scoreEl = document.getElementById('score');
-  const roundEl = document.getElementById('round');
-  const descEl = document.getElementById('description');
-  const feedbackEl = document.getElementById('feedback');
-  const nextBtn = document.getElementById('nextBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const currentRoundEl = document.getElementById('currentRound');
-  const totalRoundsEl = document.getElementById('totalRounds');
+  const shuffled = questions.sort(()=>Math.random()-0.5);
 
   let current = 0;
   let score = 0;
   let locked = false;
 
-  totalRoundsEl.textContent = shuffled.length;
-  roundEl.textContent = score;
+  const descEl = document.getElementById('description');
+  const scoreEl = document.getElementById('score');
+  const roundEl = document.getElementById('currentRound');
+  const totalEl = document.getElementById('totalRounds');
+  const nextBtn = document.getElementById('nextBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const options = [...document.querySelectorAll('.option')];
 
-  const thumbs = Array.from(document.querySelectorAll('.thumb'));
+  totalEl.textContent = questions.length;
 
-  function startRound(){
+  function loadRound(){
     locked = false;
-    feedbackEl.textContent = '';
-    thumbs.forEach(t => { 
-      t.classList.remove('correct','wrong'); 
-      t.style.pointerEvents = 'auto'; 
-    });
+    options.forEach(o => o.classList.remove('correct','wrong'));
+    nextBtn.disabled = true;
 
-    if(current >= shuffled.length){
-      descEl.textContent = "Game finished! Your final score is " + score + " / " + shuffled.length + ".";
-      feedbackEl.textContent = score === shuffled.length 
-        ? "Amazing! 🥳" 
-        : score >= Math.ceil(shuffled.length/2) 
-          ? "Good job 🙂" 
-          : "Try again!";
-      nextBtn.disabled = true;
+    if(current >= questions.length){
+      descEl.textContent = "Game finished! Your score is " + score + "/" + questions.length + ".";
       return;
     }
 
     const q = shuffled[current];
     descEl.textContent = q.text;
-    currentRoundEl.textContent = current+1;
-    roundEl.textContent = score;
+    roundEl.textContent = current + 1;
+
+    options.forEach((opt, i) => {
+      opt.textContent = q.options[i];
+    });
   }
 
-  function handleChoice(){
-    if(locked) return;
-    locked = true;
-    const id = Number(this.getAttribute('data-id'));
-    const correct = shuffled[current].answer;
-    thumbs.forEach(t => t.style.pointerEvents = 'none');
+  options.forEach(opt=>{
+    opt.addEventListener('click', function(){
+      if(locked) return;
+      locked = true;
 
-    if(id === correct){
-      this.classList.add('correct');
-      feedbackEl.textContent = "Correct!";
-      score++;
-    } else {
-      this.classList.add('wrong');
-      feedbackEl.textContent = "Incorrect.";
-      const correctThumb = thumbs.find(t => Number(t.getAttribute('data-id')) === correct);
-      correctThumb.classList.add('correct');
-    }
-    scoreEl.textContent = score;
-    roundEl.textContent = score;
-    nextBtn.disabled = false;
-  }
+      const id = Number(this.dataset.id);
+      const correct = shuffled[current].answer;
 
-  thumbs.forEach(t => t.addEventListener('click', handleChoice));
+      if(id === correct){
+        this.classList.add('correct');
+        score++;
+      } else {
+        this.classList.add('wrong');
+        options[correct-1].classList.add('correct');
+      }
 
-  nextBtn.addEventListener('click', function(){
-    if(current < shuffled.length){
-      current++;
-      startRound();
-      nextBtn.disabled = true;
-    }
+      scoreEl.textContent = score;
+      nextBtn.disabled = false;
+    });
   });
 
-  resetBtn.addEventListener('click', function(){
+  nextBtn.addEventListener('click', ()=>{
+    current++;
+    loadRound();
+  });
+
+  resetBtn.addEventListener('click', ()=>{
     current = 0;
     score = 0;
-    scoreEl.textContent = '0';
-    roundEl.textContent = '0';
+    scoreEl.textContent = 0;
     shuffled.sort(()=>Math.random()-0.5);
-    nextBtn.disabled = false;
-    startRound();
+    loadRound();
   });
 
-  nextBtn.disabled = true;
-  startRound();
-
+  loadRound();
 })();
 </script>
 </body>
